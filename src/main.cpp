@@ -132,10 +132,10 @@ int main(int argc, char* argv[]) {
                     << "  " << i + 1 << ". filozof: "
                     << state_to_string(table.philosophers[i].current_state)
                     << " (ostatnia zmiana " << std::setprecision(2)
-                    << std::chrono::duration_cast<std::chrono::milliseconds>(
+                    << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() -
                            table.philosophers[i].last_state_change)
-                               .count() /
+                               .count()) /
                            1000.0
                     << " sekund temu)" << std::endl;
             }
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    std::thread* threads = new std::thread[number_of_philosophers];
+    auto* threads = new std::thread[number_of_philosophers];
 
     for (int i = 0; i < number_of_philosophers; i++) {
         std::thread philosopher_thread(
