@@ -18,6 +18,7 @@ jobs:
         id: linter
         with:
           style: 'file'
+          tidy-checks: ''
 
       - name: Check
         if: steps.linter.outputs.checks-failed > 0
