@@ -3,11 +3,7 @@
 #include <random>
 #include <thread>
 
-enum state {
-    THINKING,
-    HUNGRY,
-    EATING
-};
+enum state { THINKING, HUNGRY, EATING };
 
 std::string state_to_string(const state& state) {
     switch (state) {
@@ -132,15 +128,16 @@ int main(int argc, char* argv[]) {
             std::cout << "\x1B[2J\x1B[H";
             std::cout << "[#] Stan filozofów: " << std::endl;
             for (int i = 0; i < number_of_philosophers; i++) {
-                std::cout << "  " << i + 1 << ". filozof: " << state_to_string(
-                        table.philosophers[i].current_state)
+                std::cout
+                    << "  " << i + 1 << ". filozof: "
+                    << state_to_string(table.philosophers[i].current_state)
                     << " (ostatnia zmiana " << std::setprecision(2)
                     << std::chrono::duration_cast<std::chrono::milliseconds>(
-                        std::chrono::high_resolution_clock::now() - table.
-                        philosophers
-                        [i].last_state_change).count() / 1000.0 <<
-                    " sekund temu)"
-                    << std::endl;
+                           std::chrono::high_resolution_clock::now() -
+                           table.philosophers[i].last_state_change)
+                               .count() /
+                           1000.0
+                    << " sekund temu)" << std::endl;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
@@ -149,9 +146,8 @@ int main(int argc, char* argv[]) {
     std::thread* threads = new std::thread[number_of_philosophers];
 
     for (int i = 0; i < number_of_philosophers; i++) {
-        std::thread philosopher_thread([&table, i] {
-            philosopher_loop(table, table.philosophers[i]);
-        });
+        std::thread philosopher_thread(
+            [&table, i] { philosopher_loop(table, table.philosophers[i]); });
         threads[i] = std::move(philosopher_thread);
     }
 
