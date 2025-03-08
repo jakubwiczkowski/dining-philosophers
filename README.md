@@ -37,7 +37,48 @@ ile sekund temu nastąpiła ostatnia zmiana stanu.
 
 ## Sekcje krytyczne
 
+1. Sekcja krytyczna w której filozof chce zacząć jeść
 
+```c++
+void take_forks(table& table, philosopher& philosopher) {
+    {
+        std::lock_guard lk{table.critical_region_mtx};
+        philosopher.current_state = HUNGRY;
+        philosopher.last_state_change =
+            std::chrono::high_resolution_clock::now();
+        test(table, philosopher);
+    }
+
+    table.forks_available[philosopher.id]->acquire();
+}
+```
+
+2. Sekcja krytyczna sprawdzająca, czy filozof ma dostępne dwa widelce
+
+```c++
+void test(table& table, philosopher& philosopher) {
+    if (philosopher.current_state == HUNGRY &&
+        left(table, philosopher).current_state != EATING &&
+        right(table, philosopher).current_state != EATING) {
+        philosopher.current_state = EATING;
+        philosopher.last_state_change =
+            std::chrono::high_resolution_clock::now();
+        table.forks_available[philosopher.id]->release();
+    }
+}
+```
+
+3. Sekcja krytyczna, w której filozof odkłada widelce i powoduje sprawdzenie dostępności widelców u sąsiadów
+
+```c++
+void put_forks(table& table, philosopher& philosopher) {
+    std::lock_guard lk{table.critical_region_mtx};
+    philosopher.current_state = THINKING;
+    philosopher.last_state_change = std::chrono::high_resolution_clock::now();
+    test(table, left(table, philosopher));
+    test(table, right(table, philosopher));
+}
+```
 
 
 
