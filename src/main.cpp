@@ -55,7 +55,7 @@ struct table {
  * @param table table to initialize
  * @param seats number of seats
  */
-void initialize(table& table, int seats) {
+void initialize(table& table, const int seats) {
     table.seats = seats;
 
     const auto start = std::chrono::high_resolution_clock::now();
@@ -96,8 +96,8 @@ philosopher& right(table& table, const philosopher& person) {
  * @param max maximum
  * @return random number from specified range
  */
-int generate_random(int min, int max) {
-    static std::mt19937 random_engine = std::mt19937(std::random_device()());
+int generate_random(const int min, const int max) {
+    static auto random_engine = std::mt19937(std::random_device()());
     return std::uniform_int_distribution(min, max)(random_engine);
 }
 
@@ -124,7 +124,7 @@ void test(table& table, philosopher& philosopher) {
  * by putting the philosopher's thread to sleep for a random time (between 500 and 1500 ms)
  */
 void think() {
-    size_t duration = generate_random(500, 1500);
+    const size_t duration = generate_random(500, 1500);
     std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 }
 
@@ -151,7 +151,7 @@ void take_forks(table& table, philosopher& philosopher) {
  * by putting the philosopher's thread to sleep for a random time (between 400 and 800 ms)
  */
 void eat() {
-    size_t duration = generate_random(400, 800);
+    const size_t duration = generate_random(400, 800);
     std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 }
 
@@ -186,7 +186,7 @@ void put_forks(table& table, philosopher& philosopher) {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
     int number_of_philosophers = 5;
 
     if (argc == 2) {
