@@ -27,7 +27,8 @@ std::string state_to_string(const state& state) {
 }
 
 /**
- * Struct representing a philosopher. Contains their id, state, and last state change timestamp.
+ * Struct representing a philosopher. Contains their id, state, and last state
+ * change timestamp.
  */
 struct philosopher {
     int id;
@@ -37,8 +38,8 @@ struct philosopher {
 };
 
 /**
- * Struct representing a table. Contains philosophers, forks, number of seats and mutex responsible
- * for critical regions.
+ * Struct representing a table. Contains philosophers, forks, number of seats
+ * and mutex responsible for critical regions.
  */
 struct table {
     int seats{};
@@ -102,8 +103,8 @@ int generate_random(const int min, const int max) {
 }
 
 /**
- * Tests if two forks are available for the specified philosopher, and when available changes
- * state to eating and "locks" their forks down.
+ * Tests if two forks are available for the specified philosopher, and when
+ * available changes state to eating and "locks" their forks down.
  *
  * @param table philosopher's table
  * @param philosopher target philosopher
@@ -121,7 +122,8 @@ void test(table& table, philosopher& philosopher) {
 
 /**
  * Responsible for philosopher thinking. Thinking is simulated
- * by putting the philosopher's thread to sleep for a random time (between 500 and 1500 ms)
+ * by putting the philosopher's thread to sleep for a random time (between 500
+ * and 1500 ms)
  */
 void think() {
     const size_t duration = generate_random(500, 1500);
@@ -148,7 +150,8 @@ void take_forks(table& table, philosopher& philosopher) {
 
 /**
  * Responsible for philosopher eating. Eating is simulated
- * by putting the philosopher's thread to sleep for a random time (between 400 and 800 ms)
+ * by putting the philosopher's thread to sleep for a random time (between 400
+ * and 800 ms)
  */
 void eat() {
     const size_t duration = generate_random(400, 800);
@@ -206,16 +209,18 @@ int main(const int argc, char* argv[]) {
             std::cout << "\x1B[2J\x1B[H";
             std::cout << "[#] Stan filozofów: " << std::endl;
             for (int i = 0; i < number_of_philosophers; i++) {
-                std::cout
-                    << "  " << i + 1 << ". filozof: "
-                    << state_to_string(table.philosophers[i].current_state)
-                    << " (ostatnia zmiana " << std::setprecision(2)
-                    << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
-                           std::chrono::high_resolution_clock::now() -
-                           table.philosophers[i].last_state_change)
-                               .count()) /
-                           1000.0
-                    << " sekund temu)" << std::endl;
+                std::cout << "  " << i + 1 << ". filozof: "
+                          << state_to_string(
+                                 table.philosophers[i].current_state)
+                          << " (ostatnia zmiana " << std::setprecision(2)
+                          << static_cast<double>(
+                                 std::chrono::duration_cast<
+                                     std::chrono::milliseconds>(
+                                     std::chrono::high_resolution_clock::now() -
+                                     table.philosophers[i].last_state_change)
+                                     .count()) /
+                                 1000.0
+                          << " sekund temu)" << std::endl;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
