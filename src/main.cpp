@@ -43,10 +43,10 @@ struct philosopher {
 struct table {
     int seats{};
 
-    std::mutex critical_region_mtx;
+    std::mutex critical_region_mtx{};
 
-    std::vector<philosopher> philosophers;
-    std::vector<std::unique_ptr<std::binary_semaphore>> forks_available;
+    std::vector<philosopher> philosophers{};
+    std::vector<std::unique_ptr<std::binary_semaphore>> forks_available{};
 };
 
 /**
