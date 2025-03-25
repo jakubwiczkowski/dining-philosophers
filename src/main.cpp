@@ -3,8 +3,17 @@
 #include <random>
 #include <thread>
 
+/**
+ * Philosopher's state.
+ */
 enum state { THINKING, HUNGRY, EATING };
 
+/**
+ * Returns a string to be displayed for a specific state.
+ *
+ * @param state state enum
+ * @return text displayed for provided state
+ */
 std::string state_to_string(const state& state) {
     switch (state) {
         case HUNGRY:
@@ -17,6 +26,9 @@ std::string state_to_string(const state& state) {
     }
 }
 
+/**
+ * Struct representing a philosopher. Contains their id, state, and last state change timestamp.
+ */
 struct philosopher {
     int id;
 
@@ -24,6 +36,10 @@ struct philosopher {
     std::chrono::time_point<std::chrono::system_clock> last_state_change;
 };
 
+/**
+ * Struct representing a table. Contains philosophers, forks, number of seats and mutex responsible
+ * for critical regions.
+ */
 struct table {
     int seats{};
 
@@ -33,6 +49,12 @@ struct table {
     std::vector<std::unique_ptr<std::binary_semaphore>> forks_available;
 };
 
+/**
+ * Initializes a table with philosophers and binary semaphores for forks.
+ *
+ * @param table table to initialize
+ * @param seats number of seats
+ */
 void initialize(table& table, int seats) {
     table.seats = seats;
 
@@ -45,19 +67,47 @@ void initialize(table& table, int seats) {
     }
 }
 
+/**
+ * Returns the left neighbour of the specified philosopher.
+ *
+ * @param table table of the philosophers
+ * @param person philosopher
+ * @return left neighbour of specified philosopher
+ */
 philosopher& left(table& table, const philosopher& person) {
     return table.philosophers[(person.id - 1 + table.seats) % table.seats];
 }
 
+/**
+ * Returns the right neighbour of the specified philosopher.
+ *
+ * @param table table of the philosophers
+ * @param person philosopher
+ * @return right neighbour of specified philosopher
+ */
 philosopher& right(table& table, const philosopher& person) {
     return table.philosophers[(person.id + 1) % table.seats];
 }
 
+/**
+ * Returns a random number from [min, max] range.
+ *
+ * @param min minimum
+ * @param max maximum
+ * @return random number from specified range
+ */
 int generate_random(int min, int max) {
     static std::mt19937 random_engine = std::mt19937(std::random_device()());
     return std::uniform_int_distribution(min, max)(random_engine);
 }
 
+/**
+ * Tests if two forks are available for the specified philosopher, and when available changes
+ * state to eating and "locks" their forks down.
+ *
+ * @param table philosopher's table
+ * @param philosopher target philosopher
+ */
 void test(table& table, philosopher& philosopher) {
     if (philosopher.current_state == HUNGRY &&
         left(table, philosopher).current_state != EATING &&
@@ -69,11 +119,21 @@ void test(table& table, philosopher& philosopher) {
     }
 }
 
+/**
+ * Responsible for philosopher thinking. Thinking is simulated
+ * by putting the philosopher's thread to sleep for a random time (between 500 and 1500 ms)
+ */
 void think() {
     size_t duration = generate_random(500, 1500);
     std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 }
 
+/**
+ * Responsible for philosopher taking the forks. Contains a critical section.
+ *
+ * @param table philosopher's table
+ * @param philosopher target philosopher
+ */
 void take_forks(table& table, philosopher& philosopher) {
     {
         std::lock_guard lk{table.critical_region_mtx};
@@ -86,11 +146,22 @@ void take_forks(table& table, philosopher& philosopher) {
     table.forks_available[philosopher.id]->acquire();
 }
 
+/**
+ * Responsible for philosopher eating. Eating is simulated
+ * by putting the philosopher's thread to sleep for a random time (between 400 and 800 ms)
+ */
 void eat() {
     size_t duration = generate_random(400, 800);
     std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 }
 
+/**
+ * Responsible for putting forks down logic. Contains a critical
+ * section.
+ *
+ * @param table philosopher's table
+ * @param philosopher target philosopher
+ */
 void put_forks(table& table, philosopher& philosopher) {
     std::lock_guard lk{table.critical_region_mtx};
     philosopher.current_state = THINKING;
@@ -99,6 +170,13 @@ void put_forks(table& table, philosopher& philosopher) {
     test(table, right(table, philosopher));
 }
 
+/**
+ * Main philosopher loop, responsible for thinking, taking forks,
+ * eating, and putting the forks back.
+ *
+ * @param table philosopher's table
+ * @param philosopher target philosopher
+ */
 [[noreturn]] void philosopher_loop(table& table, philosopher& philosopher) {
     while (true) {
         think();
