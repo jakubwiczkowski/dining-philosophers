@@ -53,22 +53,7 @@ void take_forks(table& table, philosopher& philosopher) {
 }
 ```
 
-2. Sekcja krytyczna sprawdzająca, czy filozof ma dostępne dwa widelce
-
-```c++
-void test(table& table, philosopher& philosopher) {
-    if (philosopher.current_state == HUNGRY &&
-        left(table, philosopher).current_state != EATING &&
-        right(table, philosopher).current_state != EATING) {
-        philosopher.current_state = EATING;
-        philosopher.last_state_change =
-            std::chrono::high_resolution_clock::now();
-        table.forks_available[philosopher.id]->release();
-    }
-}
-```
-
-3. Sekcja krytyczna, w której filozof odkłada widelce i powoduje sprawdzenie dostępności widelców u sąsiadów
+2. Sekcja krytyczna, w której filozof odkłada widelce i powoduje sprawdzenie dostępności widelców u sąsiadów
 
 ```c++
 void put_forks(table& table, philosopher& philosopher) {
